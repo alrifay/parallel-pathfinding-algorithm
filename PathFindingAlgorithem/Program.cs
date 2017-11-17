@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 namespace PathFindingAlgorithem
 {
 	class Program
 	{
-		static void Main(string[] args)
-		{
-			Point p = new Point(5, 6);
-			Console.WriteLine(p.x + " " + p.y);
-		}
+        static void Main(string[] args)
+        {
+            Maze m = Maze.getMaze();
+            Vector v = new Vector(new Point(4, 0), Direction.North);
+            Console.WriteLine(m.getPath(v, new Point(0, 4)));
+        }
 	}
 
 	enum Direction
@@ -22,8 +22,8 @@ namespace PathFindingAlgorithem
 		West
 	}
 
-	class Point : ICloneable
-	{
+	class Point : ICloneable , IEquatable<Point>
+    {
 		public Point(int x, int y)
 		{
 			this.x = x;
@@ -38,28 +38,41 @@ namespace PathFindingAlgorithem
 		{
 			return new Point(this.x, this.y);
 		}
-	}
 
-	class Car : ICloneable
-	{
-		Direction direction;
-		Point position;
+        public static bool compare(List<Point> list , Point p)
+        {
+            return list.Find(item => item.Equals(p)) != null;
+        }
 
-		public Car(Point position, Direction direction)
+        public bool Equals(Point other)
+        {
+            return x == other.x && y == other.y;
+        }
+    }
+
+	class Vector : ICloneable , IEqualityComparer<Vector>
+    {
+        public Direction direction;
+		public Point position;
+        //public List<Vector> previous;
+        public HashSet<Vector> previous;
+        public Vector() { }
+
+		public Vector(Point position, Direction direction)
 		{
 			this.position = position;
 			this.direction = direction;
-		}
-
-		public object Clone()
+            previous = new HashSet<Vector>(new Vector());//new List<Vector>();
+        }
+        public object Clone()
 		{
 			Point position = (Point)this.position.Clone();
-			return new Car(position, this.direction);
+			return new Vector(position, this.direction);
 		}
 
-		public Car moveForword(Maze maze)
+		public Vector moveForword(Maze maze)
 		{
-			Car newCar = (Car)Clone();
+			Vector newCar = (Vector)Clone();
 
 			switch (this.direction)
 			{
@@ -76,12 +89,16 @@ namespace PathFindingAlgorithem
 					newCar.position.y--;
 					break;
 			}
-			return newCar;
+            if (newCar.canMove(maze) == true) {
+                return newCar;
+            }
+            else
+                return null;
 		}
 
-		public Car moveRight()
+		public Vector moveRight(Maze maze)
 		{
-			Car newCar = (Car)Clone();
+			Vector newCar = (Vector)Clone();
 
 			switch (this.direction)
 			{
@@ -102,8 +119,12 @@ namespace PathFindingAlgorithem
 					newCar.position.x--;
 					break;
 			}
-			return newCar;
-		}
+            if (newCar.canMove(maze) == true) { 
+                return newCar;
+            }
+            else
+                return null;
+        }
 
 		public bool isExist(Maze maze)
 		{
@@ -119,7 +140,27 @@ namespace PathFindingAlgorithem
 		{
 			return isExist(maze) && !isBlocked(maze);
 		}
-	}
+
+        public bool isExistInList(List<Vector> list)
+        {
+            return list.Find(c=> c.Equals(this) )!= null;
+        }
+
+        public bool Equals(Vector other)
+        {
+            return this.position.Equals(other.position) && this.direction == other.direction;
+        }
+
+        public bool Equals(Vector x, Vector y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(Vector obj)
+        {
+            return 1;
+        }
+    }
 
 	class Maze
 	{
@@ -139,7 +180,7 @@ namespace PathFindingAlgorithem
 			Maze maze = new Maze(5, 5);
 			maze.maze = new int[,]{
 				{0, 0, 0, 0, 0},
-				{0, 0, 0, 0, 0},
+				{-1, -1, 0, -1, -1},
 				{0, 0, 0, 0, 0},
 				{0, 0, 0, 0, 0},
 				{0, 0, 0, 0, 0}
@@ -147,26 +188,52 @@ namespace PathFindingAlgorithem
 			return maze;
 		}
 
-		public LinkedList<Point> getPath(Point start, Point finish)
+		public bool getPath(Vector start, Point finish)
 		{
-			LinkedList<Point> path = new LinkedList<Point>();
-
-			return path;
+            List<Vector> open = new List<Vector>();
+            List<Vector> closed = new List<Vector>();
+            Vector visited;
+            open.AddRange(this.getNextMoves(start));
+            while(open.Count !=0)
+            {
+                visited = open[0];
+                open.RemoveAt(0);
+                if (finish.Equals(visited.position))
+                {
+                    foreach (Vector vs in visited.previous)
+                        Console.WriteLine(vs.position.x + " , " + vs.position.y  + " : " + vs.direction.ToString());
+                    return true;
+                }
+                foreach (Vector v in getNextMoves(visited)) { 
+                if (!v.isExistInList(closed) && !v.isExistInList(open)) { 
+                        open.Add(v);
+                    }
+                }
+                closed.Add(visited);
+            }
+			return false;
 		}
 
-		public LinkedList<Car> getNextMoves(Car car)
+		public List<Vector> getNextMoves(Vector car)
 		{
-			LinkedList<Car> moves = new LinkedList<Car>();
-
-			if (isExist(x, y + 1) && !isBlocked())
+            List<Vector> moves = new List<Vector>();
+            Vector forword = car.moveForword(this);
+            Vector right = car.moveRight(this);
+			if (forword != null)
 			{
-
+                foreach (Vector pre in car.previous)
+                    forword.previous.Add(pre);
+                forword.previous.Add(car);
+                moves.Add(forword);
 			}
-			if (isExist(x + 1, y) && !isBlocked())
+			if (right !=null)
 			{
-
-			}
-			return null;
+                foreach (Vector pre in car.previous)
+                    right.previous.Add(pre);
+                right.previous.Add(car);
+                moves.Add(right);
+            }
+			return moves;
 		}
 
 		public bool isBlocked(int x, int y)
