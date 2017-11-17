@@ -9,9 +9,10 @@ namespace PathFindingAlgorithem
     {
         static void Main(string[] args)
         {
-            /*Maze m = Maze.getMaze();
-            Vector v = new Vector(new Point(0, 21), Direction.North);
-            Console.WriteLine(m.getPath(v, new Point(0, 0)));*/
+            Maze m = Maze.getMaze();
+            Vector v = new Vector(new Point(4, 0), Direction.North);
+            foreach(Vector vs in m.getPathParallel(v, new Point(0, 4)))
+                Console.WriteLine(vs.position.x + " , " + vs.position.y + " : " + vs.direction.ToString());
         }
     }
 
@@ -179,17 +180,22 @@ namespace PathFindingAlgorithem
 
         public static Maze getMaze()
         {
-            Maze maze = new Maze(4, 23);
+            Maze maze = new Maze(5, 5);
             maze.maze = new int[,]{
-                {0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
+                /*{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
                 {0, -1, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
                 {0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-                {0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0}
+                {0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0}*/
+                {0, 0, 0, 0, 0 },
+                {0, 0, 0, 0, 0 },
+                {-1, -1, 0, -1, -1 },
+                {0, 0, 0, 0, 0 },
+                {0, 0, 0, 0, 0 }
             };
             return maze;
         }
 
-        public bool getPath(Vector start, Point finish)
+        public HashSet<Vector> getPath(Vector start, Point finish)
         {
             List<Vector> open = new List<Vector>();
             List<Vector> closed = new List<Vector>();
@@ -201,10 +207,11 @@ namespace PathFindingAlgorithem
                 open.RemoveAt(0);
                 if (finish.Equals(visited.position))
                 {
-                    foreach (Vector vs in visited.previous)
+
+                    /*foreach (Vector vs in visited.previous)
                         Console.WriteLine(vs.position.x + " , " + vs.position.y + " : " + vs.direction.ToString());
-                    Console.WriteLine(visited.position.x + " , " + visited.position.y + " : " + visited.direction.ToString());
-                    return true;
+                    Console.WriteLine(visited.position.x + " , " + visited.position.y + " : " + visited.direction.ToString());*/
+                    return visited.previous;
                 }
                 foreach (Vector v in getNextMoves(visited))
                 {
@@ -215,26 +222,26 @@ namespace PathFindingAlgorithem
                 }
                 closed.Add(visited);
             }
-            return false;
+            return new HashSet<Vector>();
         }
 
-        public List<Vector> getNextMoves(Vector car)
+        public List<Vector> getNextMoves(Vector vector)
         {
             List<Vector> moves = new List<Vector>();
-            Vector forword = car.moveForword(this);
-            Vector right = car.moveRight(this);
+            Vector forword = vector.moveForword(this);
+            Vector right = vector.moveRight(this);
             if (forword != null)
             {
-                foreach (Vector pre in car.previous)
+                foreach (Vector pre in vector.previous)
                     forword.previous.Add(pre);
-                forword.previous.Add(car);
+                forword.previous.Add(vector);
                 moves.Add(forword);
             }
             if (right != null)
             {
-                foreach (Vector pre in car.previous)
+                foreach (Vector pre in vector.previous)
                     right.previous.Add(pre);
-                right.previous.Add(car);
+                right.previous.Add(vector);
                 moves.Add(right);
             }
             return moves;
@@ -260,10 +267,25 @@ namespace PathFindingAlgorithem
             return isExist(point.x, point.y);
         }
 
-        public bool getPathParallel(Vector start, Point finish)
+        public HashSet<Vector> getPathParallel(Vector start, Point finish)
         {
-
-            return false;
+            Task<HashSet<Vector>> s = new Task<HashSet<Vector>>(() => getPathParallel(start.moveRight(this), finish)); ;
+            if (start.moveRight(this) == null && start.moveForword(this) != null)
+            {
+                Console.WriteLine("forword");
+                return getPathParallel(start.moveForword(this), finish);
+            }
+            else if (start.moveRight(this) != null)
+            {
+                Console.WriteLine("right");
+                s.Start();
+                //return s.Result;
+            }
+            HashSet<Vector> list = new HashSet<Vector>();
+            if (start.moveForword(this) != null)
+                list = getPath(start.moveForword(this), finish);
+            return s.Result.Count >= list.Count ? s.Result : list;
         }
     }
+   
 }
