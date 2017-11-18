@@ -9,15 +9,15 @@ namespace PathFindingAlgorithem
 
 		#region Attributes
 		public int[,] Grid { get; set; }
-		public int Width { get; set; }
-		public int Height { get; set; }
+		public int Columns { get; set; }
+		public int Rows { get; set; }
 		#endregion
 
-		public Maze(int width, int height)
+		public Maze(int rows, int columns)
 		{
-			this.Width = width;
-			this.Height = height;
-			this.Grid = new int[width, height];
+			this.Columns = columns;
+			this.Rows = rows;
+			this.Grid = new int[rows, columns];
 		}
 
 		public HashSet<Vector> GetPathParallel(Vector start, Point finish)
@@ -98,9 +98,24 @@ namespace PathFindingAlgorithem
 			return maze;
 		}
 
-		public bool IsBlocked(int x, int y)
+		public static Maze GetMaze(int Rows, int Columns)
 		{
-			return Grid[x, y] == -1;
+			Maze maze = new Maze(Rows, Columns);
+			maze.Grid = new int[Rows, Columns];
+			Random rand = new Random();
+			for (int row = 0; row < Rows; row++)
+			{
+				for (int column = 0; column < Columns; column++)
+				{
+					maze.Grid[row, column] = rand.Next(-1, 20) == -1 ? -1 : 0;
+				}
+			}
+			return maze;
+		}
+
+		public bool IsBlocked(int row, int column)
+		{
+			return Grid[row, column] == -1;
 		}
 
 		public bool IsBlocked(Point point)
@@ -110,13 +125,29 @@ namespace PathFindingAlgorithem
 
 		public bool IsExist(int x, int y)
 		{
-			return x >= 0 && x < Width && y >= 0 && y < Height;
+			return x >= 0 && x < Rows && y >= 0 && y < Columns;
 		}
 
 		public bool IsExist(Point point)
 		{
 			return IsExist(point.X, point.Y);
 		}
+
+		public override string ToString()
+		{
+			string str = "";
+			for (int row = 0; row < this.Rows; row++)
+			{
+				for (int column = 0; column < this.Columns; column++)
+				{
+					str += this.Grid[row, column] + (column+1 == this.Columns ? "" : ",");
+				}
+				str += "\n";
+			}
+			return str;
+		}
+
+
 
 		#endregion
 	}
