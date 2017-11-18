@@ -125,5 +125,10 @@ namespace PathFindingAlgorithem
 		{
 			return 1;
 		}
-	}
+        override
+        public String ToString()
+        {
+            return this.position.ToString() + ":" + this.direction.ToString();
+        }
+    }
 }

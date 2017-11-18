@@ -9,9 +9,10 @@ namespace PathFindingAlgorithem
     {
         static void Main(string[] args)
         {
-            Maze m = Maze.GetMaze(10, 25);
+            Maze m = Maze.GetMaze();
             Vector v = new Vector(new Point(4, 0), Direction.North);
-            foreach(Vector vs in m.GetPath(v, new Point(8, 22)))
+            ParallelSolver s = new ParallelSolver();
+            foreach(Vector vs in s.StartSolve(m,v, new Point(0, 4)))
 			{
 				Console.WriteLine(vs.position.X + " , " + vs.position.Y + " : " + vs.direction.ToString());
 			}
