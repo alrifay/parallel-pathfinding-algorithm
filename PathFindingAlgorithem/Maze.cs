@@ -1,41 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
 	class Maze
 	{
-		int[,] maze;
-		int width;
-		int height;
+
+		#region Attributes
+		public int[,] Grid { get; set; }
+		public int Width { get; set; }
+		public int Height { get; set; }
+		#endregion
 
 		public Maze(int width, int height)
 		{
-			this.width = width;
-			this.height = height;
-			this.maze = new int[width, height];
+			this.Width = width;
+			this.Height = height;
+			this.Grid = new int[width, height];
 		}
 
-		public static Maze GetMaze()
+		public HashSet<Vector> GetPathParallel(Vector start, Point finish)
 		{
-			Maze maze = new Maze(5, 5)
-			{
-				maze = new int[,]{
-					/*{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-					{0, -1, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0}*/
-					{0, 0, 0, 0, 0 },
-					{0, 0, 0, 0, 0 },
-					{-1, -1, 0, -1, -1 },
-					{0, 0, 0, 0, 0 },
-					{0, 0, 0, 0, 0 }
-				}
-			};
-			return maze;
+			throw new NotImplementedException();
 		}
 
 		public HashSet<Vector> GetPath(Vector start, Point finish)
@@ -71,14 +58,14 @@ namespace PathFindingAlgorithem
 		public List<Vector> GetNextMoves(Vector vector)
 		{
 			List<Vector> moves = new List<Vector>();
-			Vector forword = vector.MoveForword(this);
+			Vector forward = vector.MoveForward(this);
 			Vector right = vector.MoveRight(this);
-			if (forword != null)
+			if (forward != null)
 			{
 				foreach (Vector pre in vector.previous)
-					forword.previous.Add(pre);
-				forword.previous.Add(vector);
-				moves.Add(forword);
+					forward.previous.Add(pre);
+				forward.previous.Add(vector);
+				moves.Add(forward);
 			}
 			if (right != null)
 			{
@@ -90,9 +77,30 @@ namespace PathFindingAlgorithem
 			return moves;
 		}
 
+		#region HelperFunctions
+
+		public static Maze GetMaze()
+		{
+			Maze maze = new Maze(5, 5)
+			{
+				Grid = new int[,]{
+					/*{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
+					{0, -1, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
+					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
+					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0}*/
+					{0, 0, 0, 0, 0 },
+					{0, 0, 0, 0, 0 },
+					{-1, -1, 0, -1, -1 },
+					{0, 0, 0, 0, 0 },
+					{0, 0, 0, 0, 0 }
+				}
+			};
+			return maze;
+		}
+
 		public bool IsBlocked(int x, int y)
 		{
-			return maze[x, y] == -1;
+			return Grid[x, y] == -1;
 		}
 
 		public bool IsBlocked(Point point)
@@ -102,7 +110,7 @@ namespace PathFindingAlgorithem
 
 		public bool IsExist(int x, int y)
 		{
-			return x >= 0 && x < width && y >= 0 && y < height;
+			return x >= 0 && x < Width && y >= 0 && y < Height;
 		}
 
 		public bool IsExist(Point point)
@@ -110,24 +118,6 @@ namespace PathFindingAlgorithem
 			return IsExist(point.X, point.Y);
 		}
 
-		public HashSet<Vector> GetPathParallel(Vector start, Point finish)
-		{
-			Task<HashSet<Vector>> s = new Task<HashSet<Vector>>(() => GetPathParallel(start.MoveRight(this), finish)); ;
-			if (start.MoveRight(this) == null && start.MoveForword(this) != null)
-			{
-				Console.WriteLine("forword");
-				return GetPathParallel(start.MoveForword(this), finish);
-			}
-			else if (start.MoveRight(this) != null)
-			{
-				Console.WriteLine("right");
-				s.Start();
-				//return s.Result;
-			}
-			HashSet<Vector> list = new HashSet<Vector>();
-			if (start.MoveForword(this) != null)
-				list = GetPath(start.MoveForword(this), finish);
-			return s.Result.Count >= list.Count ? s.Result : list;
-		}
+		#endregion
 	}
 }

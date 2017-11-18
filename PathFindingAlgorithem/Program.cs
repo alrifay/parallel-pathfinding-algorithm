@@ -11,8 +11,10 @@ namespace PathFindingAlgorithem
         {
             Maze m = Maze.GetMaze();
             Vector v = new Vector(new Point(4, 0), Direction.North);
-            foreach(Vector vs in m.GetPathParallel(v, new Point(0, 4)))
-                Console.WriteLine(vs.position.X + " , " + vs.position.Y + " : " + vs.direction.ToString());
+            foreach(Vector vs in m.GetPath(v, new Point(0, 4)))
+			{
+				Console.WriteLine(vs.position.X + " , " + vs.position.Y + " : " + vs.direction.ToString());
+			}
         }
     }
 }

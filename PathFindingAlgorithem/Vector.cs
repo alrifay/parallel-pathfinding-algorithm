@@ -33,7 +33,7 @@ namespace PathFindingAlgorithem
 			return new Vector(position, this.direction);
 		}
 
-		public Vector MoveForword(Maze maze)
+		public Vector MoveForward(Maze maze)
 		{
 			Vector newCar = (Vector)Clone();
 
