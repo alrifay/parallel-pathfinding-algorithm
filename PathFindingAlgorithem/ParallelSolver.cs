@@ -12,13 +12,13 @@ namespace PathFindingAlgorithem
         public List<HashSet<Vector>> Soluations;
         public Mutex x;
         public List<Vector> Closed;
-        private List<Task> tasks;
+        //private List<Task> tasks;
 
-        public ParallelSolver ()
+        public ParallelSolver()
         {
             Soluations = new List<HashSet<Vector>>();
             x = new Mutex();
-            tasks = new List<Task>();
+            //tasks = new List<Task>();
             Closed = new List<Vector>();
         }
         public void Solve(Maze maze, Vector start, Point end)
@@ -36,7 +36,8 @@ namespace PathFindingAlgorithem
             }
             foreach (Vector v in maze.GetNextMoves(start))
             {
-                if (!v.IsExistInList(Closed)) {
+                if (!v.IsExistInListAndNotLessPath(Closed))
+                {
                     Task s = new Task(() => Solve(maze, v, end), TaskCreationOptions.AttachedToParent);
                     innerTasks.Add(s);
                 }
@@ -55,13 +56,13 @@ namespace PathFindingAlgorithem
             }*/
             HashSet<Vector> Soluation = new HashSet<Vector>();
             int count = 0;
-            if (Soluations.Count !=0)
+            if (Soluations.Count != 0)
             {
                 Soluation = Soluations[0];
                 count = Soluation.Count;
                 foreach (HashSet<Vector> Sol in Soluations)
                 {
-                    if(count > Sol.Count)
+                    if (count > Sol.Count)
                     {
                         Soluation = Sol;
                         count = Sol.Count;
