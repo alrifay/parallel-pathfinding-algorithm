@@ -113,7 +113,9 @@ namespace PathFindingAlgorithem
 
         public bool IsExistInListAndNotLessPath(List<Vector> list)
         {
-            return list.Find(c => c.EqualsAndNotLessPath(this)) != null;
+            if (list.Count >0)
+                return list.Find(c => c.EqualsAndNotLessPath(this)) != null;
+            return false;
         }
 
         public bool Equals(Vector other)

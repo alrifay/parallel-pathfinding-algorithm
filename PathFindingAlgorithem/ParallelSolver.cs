@@ -10,50 +10,53 @@ namespace PathFindingAlgorithem
     class ParallelSolver
     {
         public List<HashSet<Vector>> Soluations;
-        public Mutex x;
+        public Mutex Lock;
         public List<Vector> Closed;
-        //private List<Task> tasks;
-
         public ParallelSolver()
         {
             Soluations = new List<HashSet<Vector>>();
-            x = new Mutex();
-            //tasks = new List<Task>();
+            Lock = new Mutex();
             Closed = new List<Vector>();
         }
         public void Solve(Maze maze, Vector start, Point end)
         {
-            List<Task> innerTasks = new List<Task>();
-            x.WaitOne();
+            Lock.WaitOne();
             Closed.Add(start);
-            x.ReleaseMutex();
-
+            Lock.ReleaseMutex();
             if (start.position.Equals(end))
             {
                 Console.WriteLine("Done");
                 start.previous.Add(start);
                 Soluations.Add(start.previous);
             }
-            foreach (Vector v in maze.GetNextMoves(start))
+            else
             {
-                if (!v.IsExistInListAndNotLessPath(Closed))
+                List<Vector> discover = maze.GetNextMoves(start);
+                if (discover.Count != 0)
                 {
-                    Task s = new Task(() => Solve(maze, v, end), TaskCreationOptions.AttachedToParent);
-                    innerTasks.Add(s);
+                    if (discover.Count == 2)
+                    {
+                        Lock.WaitOne();
+                        if (!discover[1].IsExistInListAndNotLessPath(Closed))
+                        {
+                            new Task(() => Solve(maze, discover[1], end), TaskCreationOptions.AttachedToParent).Start();
+                        }
+                        Lock.ReleaseMutex();
+                    }
+                    Lock.WaitOne();
+                    if (!discover[0].IsExistInListAndNotLessPath(Closed))
+                    {
+                        Solve(maze, discover[0], end);
+                    }
+                    Lock.ReleaseMutex();
                 }
             }
-            foreach (Task s in innerTasks)
-                s.Start();
-            foreach (Task s in innerTasks)
-                s.Wait();
         }
         public HashSet<Vector> StartSolve(Maze maze, Vector start, Point end)
         {
-            Solve(maze, start, end);
-            /*foreach (Task s in tasks.ToList())
-            {
-                s.Wait();
-            }*/
+            Task s = new Task(()=>Solve(maze, start, end));
+            s.Start();
+            s.Wait();
             HashSet<Vector> Soluation = new HashSet<Vector>();
             int count = 0;
             if (Soluations.Count != 0)
@@ -62,6 +65,7 @@ namespace PathFindingAlgorithem
                 count = Soluation.Count;
                 foreach (HashSet<Vector> Sol in Soluations)
                 {
+                    Console.WriteLine(Sol.Count);
                     if (count > Sol.Count)
                     {
                         Soluation = Sol;

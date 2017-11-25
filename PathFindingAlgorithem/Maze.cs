@@ -37,11 +37,12 @@ namespace PathFindingAlgorithem
 				open.RemoveAt(0);
 				if (finish.Equals(visited.position))
 				{
-
-					/*foreach (Vector vs in visited.previous)
+                    Console.WriteLine("Done");
+                    visited.previous.Add(visited);
+                    /*foreach (Vector vs in visited.previous)
                         Console.WriteLine(vs.position.x + " , " + vs.position.y + " : " + vs.direction.ToString());
                     Console.WriteLine(visited.position.x + " , " + visited.position.y + " : " + visited.direction.ToString());*/
-					return visited.previous;
+                    return visited.previous;
 				}
 				foreach (Vector v in GetNextMoves(visited))
 				{
@@ -81,18 +82,18 @@ namespace PathFindingAlgorithem
 
 		public static Maze GetMaze()
 		{
-			Maze maze = new Maze(5, 5)
+			Maze maze = new Maze(5, 11)
 			{
 				Grid = new int[,]{
 					/*{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
 					{0, -1, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
 					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
 					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0}*/
-					{0 , 0 , 0, 0 , 0 },
-					{0 , 0 , 0, 0 , 0 },
-					{-1, -1, 0, -1, -1 },
-					{0 , 0 , 0, 0 , 0 },
-					{0 , 0 , 0, 0 , 0 }
+					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 },
+					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 },
+					{-1, -1, 0, -1, -1 , -1, -1 , -1, -1 ,  0, -1 },
+					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 },
+					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 }
 				}
 			};
 			return maze;
