@@ -11,13 +11,16 @@ namespace PathFindingAlgorithem
         static void Main(string[] args)
         {
             Maze m = Maze.GetMaze();
-            Vector v = new Vector(new Point(4, 0), Direction.North);
-            Point Start = new Point(0, 10);
-            ParallelSolver s = new ParallelSolver();
+            Vector start = new Vector(new Point(4, 0), Direction.North);
+            Point end = new Point(0, 10);
+            ParallelSolverImprove solver = new ParallelSolverImprove(m);
+            //solver.GetPathasync(start, end);
+            /*ParallelSolver s = new ParallelSolver();*/
             HashSet<Vector> sol;
             var watch = System.Diagnostics.Stopwatch.StartNew();
-            sol = s.StartSolve(m, v, Start);
-            //sol = m.GetPath(v, Start);
+            //sol = s.StartSolve(m, start, end);
+            //sol = m.GetPath(start, end);
+            sol = solver.GetPathasync(start, end);
             watch.Stop();
             Console.WriteLine(watch.ElapsedMilliseconds.ToString() + ": " + sol.Count);
             Console.ReadKey();

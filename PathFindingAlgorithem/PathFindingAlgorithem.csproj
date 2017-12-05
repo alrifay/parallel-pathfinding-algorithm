@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>PathFindingAlgorithem</RootNamespace>
     <AssemblyName>PathFindingAlgorithem</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Maze.cs" />
+    <Compile Include="ParallelSolverImprove.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ParallelSolver.cs" />
