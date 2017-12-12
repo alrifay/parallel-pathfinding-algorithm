@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
@@ -7,9 +9,9 @@ namespace PathFindingAlgorithem
 	class Maze
 	{
 
-		#region Attributes
-		public int[,] Grid { get; set; }
-		public int Columns { get; set; }
+        #region Attributes
+        public String[][] Grid { get; set; }
+        public int Columns { get; set; }
 		public int Rows { get; set; }
 		#endregion
 
@@ -17,8 +19,8 @@ namespace PathFindingAlgorithem
 		{
 			this.Columns = columns;
 			this.Rows = rows;
-			this.Grid = new int[rows, columns];
-		}
+            this.Grid = new String[rows][];
+        }
 
 		public HashSet<Vector> GetPathParallel(Vector start, Point finish)
 		{
@@ -78,28 +80,18 @@ namespace PathFindingAlgorithem
 			return moves;
 		}
 
-		#region HelperFunctions
+        #region HelperFunctions
 
-		public static Maze GetMaze()
-		{
-			Maze maze = new Maze(5, 11)
-			{
-				Grid = new int[,]{
-					/*{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-					{0, -1, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0},
-					{0, 0, 0, 0, 0 ,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0,0, 0, 0}*/
-					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 },
-					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 },
-					{-1, -1, 0, -1, -1 , -1, -1 , -1, -1 ,  0, -1 },
-					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 },
-					{0 ,  0, 0,  0,  0 ,  0,  0 ,  0,  0 ,  0,  0 }
-				}
-			};
-			return maze;
-		}
+        public static Maze GetMaze()
+        {
+            Maze maze = new Maze(ReadMaze().Result.GetLength(0), ReadMaze().Result[0].GetLength(0))
+            {
+                Grid = ReadMaze().Result
+            };
+            return maze;
+        }
 
-		public static Maze GetMaze(int Rows, int Columns)
+        /*public static Maze GetMaze(int Rows, int Columns)
 		{
 			Maze maze = new Maze(Rows, Columns);
 			maze.Grid = new int[Rows, Columns];
@@ -112,12 +104,79 @@ namespace PathFindingAlgorithem
 				}
 			}
 			return maze;
-		}
+		}*/
 
-		public bool IsBlocked(int row, int column)
+        static async Task<string[][]> ReadMaze()
+        {
+            List<string[]> list = new List<string[]>();
+            String temp;
+            StreamReader reader = File.OpenText("Maze.txt");
+            while (reader.Peek() >= 0)
+            {
+                temp = await reader.ReadLineAsync();
+                list.Add(temp.Split());
+            }
+            string[][] Maze = list.Select(a => a.ToArray()).ToArray();
+            return Maze;
+        }
+        public static Vector getStartAndDirection()
+        {
+            string[][] Maze = GetMaze().Grid;
+            for (int i = 0; i < Maze.GetLength(0); i++)
+            {
+                for (int j = 0; j < Maze[0].GetLength(0); j++)
+                {
+                    if (Maze[i][j].Equals("w") || Maze[i][j].Equals("a") || Maze[i][j].Equals("s") || Maze[i][j].Equals("d"))
+                    {
+                        return new Vector(new Point(i, j), getDirection());
+                    }
+                }
+            }
+            return null;
+        }
+        public static Point getEnd()
+        {
+            string[][] Maze = GetMaze().Grid;
+            for (int i = 0; i < Maze.GetLength(0); i++)
+            {
+                for (int j = 0; j < Maze[0].GetLength(0); j++)
+                {
+                    if (Maze[i][j].Equals("e"))
+                    {
+                        return new Point(i, j);
+                    }
+                }
+            }
+            return null;
+        }
+        public static Direction getDirection()
+        {
+            string[][] Maze = GetMaze().Grid;
+            for (int i = 0; i < Maze.GetLength(0); i++)
+            {
+                for (int j = 0; j < Maze[0].GetLength(0); j++)
+                {
+                    if (Maze[i][j].Equals("w"))
+                    {
+                        return Direction.North;
+                    }
+                    else if (Maze[i][j].Equals("a"))
+                    {
+                        return Direction.West;
+                    }
+                    else if (Maze[i][j].Equals("s"))
+                    {
+                        return Direction.South;
+                    }
+                }
+            }
+            return Direction.East;
+        }
+
+        public bool IsBlocked(int row, int column)
 		{
-			return Grid[row, column] == -1;
-		}
+            return Grid[row][column].Equals("-1");
+        }
 
 		public bool IsBlocked(Point point)
 		{
@@ -141,7 +200,7 @@ namespace PathFindingAlgorithem
 			{
 				for (int column = 0; column < this.Columns; column++)
 				{
-					str += this.Grid[row, column] + (column+1 == this.Columns ? "" : ",");
+					str += this.Grid[row][column] + (column+1 == this.Columns ? "" : ",");
 				}
 				str += "\n";
 			}
