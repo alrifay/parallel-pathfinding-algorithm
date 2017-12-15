@@ -11,8 +11,8 @@ namespace PathFindingAlgorithem
         static void Main(string[] args)
         {
             Maze m = Maze.GetMaze();
-            Vector start = new Vector(new Point(4, 0), Direction.North);
-            Point end = new Point(0, 10);
+            Vector start = Maze.getStartAndDirection();
+            Point end = Maze.getEnd();
             ParallelSolverImprove solver = new ParallelSolverImprove(m);
             //solver.GetPathasync(start, end);
             /*ParallelSolver s = new ParallelSolver();*/
