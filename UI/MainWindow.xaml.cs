@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Threading;
 using PathFindingAlgorithem;
+using Microsoft.Win32;
 
 namespace UI
 {
@@ -22,30 +23,33 @@ namespace UI
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        private System.Windows.Threading.DispatcherTimer dispatcherTimer;
         private Rectangle[,] rectangles;
         private Rectangle carImage;
+        private Maze maze;
+        private PathFindingAlgorithem.Vector start;
+        private PathFindingAlgorithem.Point end;
+        private ParallelSolverImprove solver;
 
         public MainWindow()
         {
             InitializeComponent();
-            dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-            dispatcherTimer.Interval = new TimeSpan(0, 5, 0);
-
-            int[][] Grid = new int[][]{
+            solver = new ParallelSolverImprove();
+            //MessageBox.Show(PathFindingAlgorithem.Maze.GetMaze().Grid.GetLength(0)+"");
+            /*int[][] Grid = new int[][]{
                     new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
                     new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
                     new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
                     new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
                 };
 
-            this.renderRectangles(Grid, 3, 0, Direction.West);
+            this.renderRectangles(Grid, 3, 0, Direction.West);*/
         }
 
-        private void renderRectangles(int[][] matrix, int carX, int carY, Direction carDirection)
+        private void renderRectangles(string[][] matrix, PathFindingAlgorithem.Vector car)
         {
+            rectanglesGrid.Children.Clear();
+            rectanglesGrid.RowDefinitions.Clear();
+            rectanglesGrid.ColumnDefinitions.Clear();
             rectangles = new Rectangle[matrix.GetLength(0), matrix[0].GetLength(0)];
             int rectangleWidth = 60;
             int rectangelHeight = rectangleWidth;
@@ -75,7 +79,7 @@ namespace UI
                     {
                         Width = rectangleWidth,
                         Height = rectangelHeight,
-                        Fill = (matrix[rowCounter][columnCounter] == 0) ? Brushes.White : Brushes.Black,
+                        Fill = (matrix[rowCounter][columnCounter].Equals("-1")) ? Brushes.Black : Brushes.White,
                         Stroke = Brushes.Gray,
                         StrokeThickness = 0.5,
                     };
@@ -100,39 +104,69 @@ namespace UI
             };
 
             rectanglesGrid.Children.Add(carImage);
-            this.MoveCar(carX, carY, carDirection);
+            this.MoveCar(car.position.X, car.position.Y, car.direction);
         }
 
-        private void SetCarRoute(List<PathFindingAlgorithem.Vector> points)
+        private void SetCarRoute(HashSet<PathFindingAlgorithem.Vector> points)
         {
             foreach (PathFindingAlgorithem.Vector point in points)
             {
-                this.MoveCar(point.position.X, point.position.Y, point.direction);
+                rectanglesGrid.Dispatcher.Invoke(() =>
+                {
+                    this.MoveCar(point.position.X, point.position.Y, point.direction);
+                }, System.Windows.Threading.DispatcherPriority.Render);
+                Thread.Sleep(250);
             }
         }
 
         private void MoveCar(int x, int y, Direction direction)
         {
-            Grid.SetRow(carImage, y);
-            Grid.SetColumn(carImage, x);
+            Grid.SetRow(carImage, x);
+            Grid.SetColumn(carImage, y);
             RotateTransform newDirection = new RotateTransform((double)direction, carImage.Width / 2, carImage.Height / 2);
             carImage.RenderTransform = newDirection;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void readfile_Click(object sender, RoutedEventArgs e)
         {
-            dispatcherTimer.Start();
+            OpenFileDialog file = new OpenFileDialog();
+            var result = file.ShowDialog();
+            if (result != null && result.Value != false)
+            {
+                new Task(() =>
+                {
+                    this.maze = Maze.GetMaze(file.FileName);
+                    this.start = maze.getStartAndDirection();
+                    this.end = maze.getEnd();
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.renderRectangles(maze.Grid, this.start);
+                    });
+                }).Start();
+            }
         }
 
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        private void SolveSeq_Click(object sender, RoutedEventArgs e)
         {
-            List<PathFindingAlgorithem.Vector> path = new List<PathFindingAlgorithem.Vector>()
+            if (this.maze != null)
             {
-                new PathFindingAlgorithem.Vector(new PathFindingAlgorithem.Point(1, 0), Direction.North),
-                new PathFindingAlgorithem.Vector(new PathFindingAlgorithem.Point(0, 2), Direction.North),
-                new PathFindingAlgorithem.Vector(new PathFindingAlgorithem.Point(1, 4), Direction.North),
-            };
-            SetCarRoute(path);
+                rectanglesGrid.Dispatcher.Invoke(() =>
+                {
+                    this.SetCarRoute(this.maze.GetPath(this.start, this.end));
+                });
+            }
+        }
+
+        private void SolveParallel_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.maze != null)
+            {
+                solver.maze = this.maze;
+                rectanglesGrid.Dispatcher.Invoke(() =>
+                {
+                    this.SetCarRoute(solver.GetPathasync(this.start,this.end));
+                });
+            }
         }
     }
 }

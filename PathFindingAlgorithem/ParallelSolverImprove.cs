@@ -7,14 +7,20 @@ using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
-    class ParallelSolverImprove
+    public class ParallelSolverImprove
     {
-
         public List<Vector> open { get; set; }
         public List<Vector> closed { get; set; }
         public Maze maze { get; set; }
         public Object Lock { get; set; }
         public List<Task<HashSet<Vector>>> tasks { get; set; }
+        public ParallelSolverImprove()
+        {
+            open = new List<Vector>();
+            closed = new List<Vector>();
+            Lock = new object();
+            tasks = new List<Task<HashSet<Vector>>>();
+        }
         public ParallelSolverImprove(Maze maze)
         {
             this.maze = maze;

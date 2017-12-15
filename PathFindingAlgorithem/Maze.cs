@@ -82,11 +82,12 @@ namespace PathFindingAlgorithem
 
         #region HelperFunctions
 
-        public static Maze GetMaze()
+        public static Maze GetMaze(string filename)
         {
-            Maze maze = new Maze(ReadMaze().Result.GetLength(0), ReadMaze().Result[0].GetLength(0))
+            string[][] x = ReadMaze(filename).Result;
+            Maze maze = new Maze(x.GetLength(0), x[0].GetLength(0))
             {
-                Grid = ReadMaze().Result
+                Grid = x
             };
             return maze;
         }
@@ -106,34 +107,34 @@ namespace PathFindingAlgorithem
 			return maze;
 		}*/
 
-        static async Task<string[][]> ReadMaze()
+        static async Task<string[][]> ReadMaze(string filename)
         {
             List<string[]> list = new List<string[]>();
             String temp;
-            StreamReader reader = File.OpenText("Maze.txt");
+            StreamReader reader = File.OpenText(filename);
             while (reader.Peek() >= 0)
             {
                 temp = await reader.ReadLineAsync();
                 list.Add(temp.Split());
             }
             string[][] Maze = list.Select(a => a.ToArray()).ToArray();
+            reader.Close();
             return Maze;
         }
-        public static Vector getStartAndDirection()
+        public Vector getStartAndDirection()
         {
-            string[][] Maze = GetMaze().Grid;
-            for (int i = 0; i < Maze.GetLength(0); i++)
+            for (int i = 0; i < this.Grid.GetLength(0); i++)
             {
-                for (int j = 0; j < Maze[0].GetLength(0); j++)
+                for (int j = 0; j < this.Grid[0].GetLength(0); j++)
                 {
-                    if (Maze[i][j].Equals("w") || Maze[i][j].Equals("a") || Maze[i][j].Equals("s") || Maze[i][j].Equals("d"))
+                    if (this.Grid[i][j].Equals("w") || this.Grid[i][j].Equals("a") || this.Grid[i][j].Equals("s") || this.Grid[i][j].Equals("d"))
                     {
                         Direction x;
-                        if (Maze[i][j].Equals("w"))
+                        if (this.Grid[i][j].Equals("w"))
                             x = Direction.North;
-                        else if (Maze[i][j].Equals("a"))
+                        else if (this.Grid[i][j].Equals("a"))
                             x = Direction.West;
-                        else if (Maze[i][j].Equals("s"))
+                        else if (this.Grid[i][j].Equals("s"))
                             x = Direction.South;
                         else
                             x = Direction.East;
@@ -143,14 +144,13 @@ namespace PathFindingAlgorithem
             }
             return null;
         }
-        public static Point getEnd()
+        public Point getEnd()
         {
-            string[][] Maze = GetMaze().Grid;
-            for (int i = 0; i < Maze.GetLength(0); i++)
+            for (int i = 0; i < this.Grid.GetLength(0); i++)
             {
-                for (int j = 0; j < Maze[0].GetLength(0); j++)
+                for (int j = 0; j < this.Grid[0].GetLength(0); j++)
                 {
-                    if (Maze[i][j].Equals("e"))
+                    if (this.Grid[i][j].Equals("e"))
                     {
                         return new Point(i, j);
                     }
