@@ -20,15 +20,15 @@ namespace PathFindingAlgorithem
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //sol = s.StartSolve(m, start, end);
             //sol = m.GetPath(start, end);
-            sol = solver.GetPathasync(start, end);
+            sol = solver.GetPath(start, end);
+            //sol = solver.GetPathasync(start, end);
             watch.Stop();
             Console.WriteLine(watch.ElapsedMilliseconds.ToString() + ": " + sol.Count);
-            Console.ReadKey();
-            /*foreach(Vector vs in s.StartSolve(m,v, new Point(0, 4)))
+            foreach(Vector vs in sol)
 			{
 				Console.WriteLine(vs.position.X + " , " + vs.position.Y + " : " + vs.direction.ToString());
 			}
-			Console.WriteLine(m.ToString());*/
+			//Console.WriteLine(m.ToString());
         }
     }
 }
