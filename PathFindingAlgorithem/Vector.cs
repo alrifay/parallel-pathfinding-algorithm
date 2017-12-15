@@ -113,8 +113,10 @@ namespace PathFindingAlgorithem
 
         public bool IsExistInListAndNotLessPath(List<Vector> list)
         {
-            if (list.Count >0)
+            if (list.Count > 0)
+            {
                 return list.Find(c => c.EqualsAndNotLessPath(this)) != null;
+            }
             return false;
         }
 
@@ -140,7 +142,7 @@ namespace PathFindingAlgorithem
         override
         public String ToString()
         {
-            return this.position.ToString() + ":" + this.direction.ToString();
+            return this.position.ToString() + ":" + this.direction.ToString() + "\""+ this.previous.Count+ "\"";
         }
     }
 }
