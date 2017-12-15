@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
-	enum Direction
-	{
-		North,
-		South,
-		East,
-		West
-	}
+    public enum Direction
+    {
+        North = 90,
+        South = 270,
+        East = 180,
+        West = 0
+    }
 
-	class Vector : ICloneable, IEqualityComparer<Vector>
+    public class Vector : ICloneable, IEqualityComparer<Vector>
 	{
 		public Direction direction;
 		public Point position;

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
-	class Maze
+	public class Maze
 	{
 
 		#region Attributes

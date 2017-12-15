@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
-	class Point : ICloneable, IEquatable<Point>
+	public class Point : ICloneable, IEquatable<Point>
 	{
 		public Point(int x, int y)
 		{
