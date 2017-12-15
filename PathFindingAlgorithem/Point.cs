@@ -32,5 +32,10 @@ namespace PathFindingAlgorithem
 		{
 			return X == other.X && Y == other.Y;
 		}
-	}
+        override
+        public String ToString()
+        {
+            return this.X + "," + this.Y;
+        }
+    }
 }
