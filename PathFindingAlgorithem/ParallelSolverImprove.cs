@@ -13,14 +13,14 @@ namespace PathFindingAlgorithem
         public List<Vector> open { get; set; }
         public List<Vector> closed { get; set; }
         public Maze maze { get; set; }
-        public Mutex Lock { get; set; }
+        public Object Lock { get; set; }
         public List<Task<HashSet<Vector>>> tasks { get; set; }
         public ParallelSolverImprove(Maze maze)
         {
             this.maze = maze;
             open = new List<Vector>();
             closed = new List<Vector>();
-            Lock = new Mutex();
+            Lock = new object();
             tasks = new List<Task<HashSet<Vector>>>();
         }
         public HashSet<Vector> GetPathasync(Vector start, Point finish)
@@ -47,12 +47,11 @@ namespace PathFindingAlgorithem
             }
             foreach(Vector newStart in open)
             {
-                /*Console.WriteLine("("+newStart.position.X + " , " + newStart.position.X+")" + newStart.direction);
-                Console.WriteLine(GetPath(newStart,finish).Count);*/
                 Task<HashSet<Vector>> s = new Task<HashSet<Vector>>(() => GetPath(newStart, finish));
                 s.Start();
                 tasks.Add(s);
             }
+            Task.WaitAll(tasks.ToArray());
             HashSet<Vector> min = tasks[0].Result;
             tasks.RemoveAt(0);
             foreach (Task<HashSet<Vector>> task in tasks)
@@ -84,16 +83,18 @@ namespace PathFindingAlgorithem
                 }
                 foreach (Vector v in this.maze.GetNextMoves(visited))
                 {
-                    Lock.WaitOne();
-                    if (!v.IsExistInListAndNotLessPath(closed) && !v.IsExistInList(CurrentOpenList))
+                    lock (Lock)
                     {
-                        CurrentOpenList.Add(v);
+                        if (!v.IsExistInListAndNotLessPath(closed) && !v.IsExistInList(CurrentOpenList))
+                        {
+                            CurrentOpenList.Add(v);
+                        }
                     }
-                    Lock.ReleaseMutex();
                 }
-                Lock.WaitOne();
-                closed.Add(visited);
-                Lock.ReleaseMutex();
+                lock (Lock)
+                {
+                    closed.Add(visited);
+                }
             }
             return new HashSet<Vector>();
         }
