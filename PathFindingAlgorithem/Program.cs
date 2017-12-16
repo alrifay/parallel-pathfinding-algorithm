@@ -10,18 +10,18 @@ namespace PathFindingAlgorithem
     {
         static void Main(string[] args)
         {
-           /* Maze m = Maze.GetMaze();
-            Vector start = Maze.getStartAndDirection();
-            //Point end = Maze.getEnd();
+            Maze m = Maze.GetMaze("Maze.txt");
+            Vector start = m.getStartAndDirection();
+            Point end = m.getEnd();
             ParallelSolverImprove solver = new ParallelSolverImprove(m);
             //solver.GetPathasync(start, end);
-            /*ParallelSolver s = new ParallelSolver();
-            //HashSet<Vector> sol;
+            //ParallelSolver s = new ParallelSolver();
+            HashSet<Vector> sol;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //sol = s.StartSolve(m, start, end);
             //sol = m.GetPath(start, end);
             //sol = solver.GetPath(start, end);
-            //sol = solver.GetPathasync(start, end);
+            sol = solver.GetPathasync(start, end);
             watch.Stop();
             Console.WriteLine(watch.ElapsedMilliseconds.ToString() + ": " + sol.Count);
             /*foreach(Vector vs in sol)

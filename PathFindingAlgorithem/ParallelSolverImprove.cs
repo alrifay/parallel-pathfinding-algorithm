@@ -51,16 +51,30 @@ namespace PathFindingAlgorithem
                 }
                 closed.Add(visited);
             }
-            foreach(Vector newStart in open)
+            Parallel.ForEach(open, (newStart) =>
             {
                 Task<HashSet<Vector>> s = new Task<HashSet<Vector>>(() => GetPath(newStart, finish));
                 s.Start();
                 tasks.Add(s);
-            }
+            });
             Task.WaitAll(tasks.ToArray());
             HashSet<Vector> min = tasks[0].Result;
             tasks.RemoveAt(0);
-            foreach (Task<HashSet<Vector>> task in tasks)
+            Parallel.ForEach(tasks, (task) =>
+            {
+                HashSet<Vector> result = task.Result;
+                if (result.Count != 0)
+                {
+                    lock (Lock)
+                    {
+                        if (min.Count == 0)
+                            min = result;
+                        else if (min.Count > result.Count)
+                            min = result;
+                    }
+                }
+            });
+            /*foreach (Task<HashSet<Vector>> task in tasks)
             {
                 HashSet<Vector> result = task.Result;
                 if (result.Count != 0)
@@ -70,7 +84,7 @@ namespace PathFindingAlgorithem
                     else if (min.Count > result.Count)
                         min = result;
                 }
-            }
+            }*/
             return min;
         }
         public HashSet<Vector> GetPath(Vector start, Point finish)
