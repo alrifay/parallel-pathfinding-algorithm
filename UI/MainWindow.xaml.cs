@@ -33,16 +33,6 @@ namespace UI
         public MainWindow()
         {
             InitializeComponent();
-            solver = new ParallelSolverImprove();
-            //MessageBox.Show(PathFindingAlgorithem.Maze.GetMaze().Grid.GetLength(0)+"");
-            /*int[][] Grid = new int[][]{
-                    new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
-                    new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
-                    new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
-                    new int[]{-1, 0, -1, 0, -1, 0, -1, 0, },
-                };
-
-            this.renderRectangles(Grid, 3, 0, Direction.West);*/
         }
 
         private void renderRectangles(string[][] matrix, PathFindingAlgorithem.Vector car)
@@ -161,7 +151,7 @@ namespace UI
         {
             if (this.maze != null)
             {
-                solver.maze = this.maze;
+                solver = new ParallelSolverImprove(this.maze);
                 rectanglesGrid.Dispatcher.Invoke(() =>
                 {
                     this.SetCarRoute(solver.GetPathasync(this.start,this.end));
