@@ -104,7 +104,7 @@ namespace UI
                 rectanglesGrid.Dispatcher.Invoke(() =>
                 {
                     this.MoveCar(point.position.X, point.position.Y, point.direction);
-                }, System.Windows.Threading.DispatcherPriority.Render);
+                }, System.Windows.Threading.DispatcherPriority.Background);
                 Thread.Sleep(250);
             }
         }
@@ -131,7 +131,8 @@ namespace UI
                     this.Dispatcher.Invoke(() =>
                     {
                         this.renderRectangles(maze.Grid, this.start);
-                    });
+                    }, System.Windows.Threading.DispatcherPriority.Background);
+
                 }).Start();
             }
         }
@@ -140,10 +141,7 @@ namespace UI
         {
             if (this.maze != null)
             {
-                rectanglesGrid.Dispatcher.Invoke(() =>
-                {
-                    this.SetCarRoute(this.maze.GetPath(this.start, this.end));
-                });
+                this.SetCarRoute(this.maze.GetPath(this.start, this.end));
             }
         }
 
@@ -152,10 +150,7 @@ namespace UI
             if (this.maze != null)
             {
                 solver = new ParallelSolverImprove(this.maze);
-                rectanglesGrid.Dispatcher.Invoke(() =>
-                {
-                    this.SetCarRoute(solver.GetPathasync(this.start,this.end));
-                });
+                this.SetCarRoute(solver.GetPathasync(this.start, this.end));
             }
         }
     }
