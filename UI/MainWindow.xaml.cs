@@ -29,13 +29,14 @@ namespace UI
         private PathFindingAlgorithem.Vector start;
         private PathFindingAlgorithem.Point end;
         private ParallelSolverImprove solver;
+        private Boolean working = false;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        private void renderRectangles(string[][] matrix, PathFindingAlgorithem.Vector car)
+        private void renderRectangles(string[][] matrix, PathFindingAlgorithem.Vector car, PathFindingAlgorithem.Point end)
         {
             rectanglesGrid.Children.Clear();
             rectanglesGrid.RowDefinitions.Clear();
@@ -59,7 +60,7 @@ namespace UI
                 col.Width = new GridLength(rectangleWidth);
                 rectanglesGrid.ColumnDefinitions.Add(col);
             }
-
+            //MessageBox.Show(matrix.GetLength(0) + " " + matrix[0].GetLength(0));
             // Rendering rectangles
             for (int rowCounter = 0; rowCounter < matrix.GetLength(0); rowCounter++)
             {
@@ -73,6 +74,8 @@ namespace UI
                         Stroke = Brushes.Gray,
                         StrokeThickness = 0.5,
                     };
+                    if (rowCounter == end.X && columnCounter == end.Y)
+                        newRecatngle.Fill = Brushes.RoyalBlue;
                     rectangles[rowCounter, columnCounter] = newRecatngle;
 
                     Grid.SetRow(newRecatngle, rowCounter);
@@ -99,6 +102,7 @@ namespace UI
 
         private void SetCarRoute(HashSet<PathFindingAlgorithem.Vector> points)
         {
+            working = true;
             foreach (PathFindingAlgorithem.Vector point in points)
             {
                 rectanglesGrid.Dispatcher.Invoke(() =>
@@ -107,6 +111,7 @@ namespace UI
                 }, System.Windows.Threading.DispatcherPriority.Background);
                 Thread.Sleep(250);
             }
+            working = false;
         }
 
         private void MoveCar(int x, int y, Direction direction)
@@ -128,10 +133,10 @@ namespace UI
                     this.maze = Maze.GetMaze(file.FileName);
                     this.start = maze.getStartAndDirection();
                     this.end = maze.getEnd();
-                    this.Dispatcher.Invoke(() =>
+                    this.rectanglesGrid.Dispatcher.Invoke(() =>
                     {
-                        this.renderRectangles(maze.Grid, this.start);
-                    }, System.Windows.Threading.DispatcherPriority.Background);
+                        this.renderRectangles(maze.Grid, this.start, this.end);
+                    }, System.Windows.Threading.DispatcherPriority.Render);
 
                 }).Start();
             }
@@ -139,18 +144,31 @@ namespace UI
 
         private void SolveSeq_Click(object sender, RoutedEventArgs e)
         {
+            if (working)
+                return;
             if (this.maze != null)
             {
-                this.SetCarRoute(this.maze.GetPath(this.start, this.end));
+                rectanglesGrid.Dispatcher.Invoke(() =>
+                {
+                    this.SetCarRoute(this.maze.GetPath(this.start, this.end));
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
 
         private void SolveParallel_Click(object sender, RoutedEventArgs e)
         {
+            if (working)
+                return;
             if (this.maze != null)
             {
-                solver = new ParallelSolverImprove(this.maze);
-                this.SetCarRoute(solver.GetPathasync(this.start, this.end));
+                rectanglesGrid.Dispatcher.Invoke(() =>
+                {
+                    solver = new ParallelSolverImprove(this.maze);
+                    this.SetCarRoute(solver.GetPathasync(this.start, this.end));
+                    /*ParallelSolver s = new ParallelSolver();
+                    this.SetCarRoute(s.StartSolve(this.maze, this.start, this.end));
+                   */
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }
