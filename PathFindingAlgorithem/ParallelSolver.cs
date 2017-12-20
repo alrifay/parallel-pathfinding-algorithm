@@ -9,12 +9,12 @@ namespace PathFindingAlgorithem
 {
     public class ParallelSolver
     {
-        public List<HashSet<Vector>> Soluations;
+        public List<List<Vector>> Soluations;
         public object Lock;
         public List<Vector> Closed;
         public ParallelSolver()
         {
-            Soluations = new List<HashSet<Vector>>();
+            Soluations = new List<List<Vector>>();
             Lock = new object();
             Closed = new List<Vector>();
         }
@@ -54,18 +54,18 @@ namespace PathFindingAlgorithem
                 }
             }
         }
-        public HashSet<Vector> StartSolve(Maze maze, Vector start, Point end)
+        public List<Vector> StartSolve(Maze maze, Vector start, Point end)
         {
             Task s = new Task(() => Solve(maze, start, end));
             s.Start();
             s.Wait();
-            HashSet<Vector> Soluation = new HashSet<Vector>();
+            List<Vector> Soluation = new List<Vector>();
             int count = 0;
             if (Soluations.Count != 0)
             {
                 Soluation = Soluations[0];
                 count = Soluation.Count;
-                foreach (HashSet<Vector> Sol in Soluations)
+                foreach (List<Vector> Sol in Soluations)
                 {
                     Console.WriteLine(Sol.Count);
                     if (count > Sol.Count)

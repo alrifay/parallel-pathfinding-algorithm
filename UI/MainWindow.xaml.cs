@@ -100,7 +100,7 @@ namespace UI
             this.MoveCar(car.position.X, car.position.Y, car.direction);
         }
 
-        private void SetCarRoute(HashSet<PathFindingAlgorithem.Vector> points)
+        private void SetCarRoute(List<PathFindingAlgorithem.Vector> points)
         {
             working = true;
             foreach (PathFindingAlgorithem.Vector point in points)

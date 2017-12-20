@@ -13,13 +13,13 @@ namespace PathFindingAlgorithem
         public List<Vector> closed { get; set; }
         public Maze maze { get; set; }
         public Object Lock { get; set; }
-        public List<Task<HashSet<Vector>>> tasks { get; set; }
+        public List<Task<List<Vector>>> tasks { get; set; }
         public ParallelSolverImprove()
         {
             open = new List<Vector>();
             closed = new List<Vector>();
             Lock = new object();
-            tasks = new List<Task<HashSet<Vector>>>();
+            tasks = new List<Task<List<Vector>>>();
         }
         public ParallelSolverImprove(Maze maze)
         {
@@ -27,9 +27,9 @@ namespace PathFindingAlgorithem
             open = new List<Vector>();
             closed = new List<Vector>();
             Lock = new object();
-            tasks = new List<Task<HashSet<Vector>>>();
+            tasks = new List<Task<List<Vector>>>();
         }
-        public HashSet<Vector> GetPathasync(Vector start, Point finish)
+        public List<Vector> GetPathasync(Vector start, Point finish)
         {
             Vector visited;
             this.open.AddRange(this.maze.GetNextMoves(start));
@@ -53,16 +53,16 @@ namespace PathFindingAlgorithem
             }
             Parallel.ForEach(open, (newStart) =>
             {
-                Task<HashSet<Vector>> s = new Task<HashSet<Vector>>(() => GetPath(newStart, finish));
+                Task<List<Vector>> s = new Task<List<Vector>>(() => GetPath(newStart, finish));
                 s.Start();
                 tasks.Add(s);
             });
             Task.WaitAll(tasks.ToArray());
-            HashSet<Vector> min = tasks[0].Result;
+            List<Vector> min = tasks[0].Result;
             tasks.RemoveAt(0);
             Parallel.ForEach(tasks, (task) =>
             {
-                HashSet<Vector> result = task.Result;
+                List<Vector> result = task.Result;
                 if (result.Count != 0)
                 {
                     lock (Lock)
@@ -88,7 +88,7 @@ namespace PathFindingAlgorithem
             }*/
             return min;
         }
-        public HashSet<Vector> GetPath(Vector start, Point finish)
+        public List<Vector> GetPath(Vector start, Point finish)
         {
             if (finish.Equals(start.position))
             {
@@ -122,7 +122,7 @@ namespace PathFindingAlgorithem
                     closed.Add(visited);
                 }
             }
-            return new HashSet<Vector>();
+            return new List<Vector>();
         }
     }
 }

@@ -16,7 +16,7 @@ namespace PathFindingAlgorithem
             ParallelSolverImprove solver = new ParallelSolverImprove(m);
             //solver.GetPathasync(start, end);
             //ParallelSolver s = new ParallelSolver();
-            HashSet<Vector> sol;
+            List<Vector> sol;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             //sol = s.StartSolve(m, start, end);
             //sol = m.GetPath(start, end);

@@ -17,14 +17,14 @@ namespace PathFindingAlgorithem
     {
         public Direction direction;
         public Point position;
-        public HashSet<Vector> previous;
+        public List<Vector> previous;
         public Vector() { }
 
         public Vector(Point position, Direction direction)
         {
             this.position = position;
             this.direction = direction;
-            previous = new HashSet<Vector>(new Vector());
+            previous = new List<Vector>();
         }
         public object Clone()
         {

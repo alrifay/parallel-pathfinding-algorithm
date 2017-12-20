@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
-	public class Maze
-	{
+    public class Maze
+    {
 
         #region Attributes
         public String[][] Grid { get; set; }
@@ -21,13 +21,8 @@ namespace PathFindingAlgorithem
             this.Rows = rows;
             this.Grid = new String[rows][];
         }
-
-        public HashSet<Vector> GetPathParallel(Vector start, Point finish)
-        {
-            throw new NotImplementedException();
-        }
-
-        public HashSet<Vector> GetPath(Vector start, Point finish)
+        
+        public List<Vector> GetPath(Vector start, Point finish)
         {
             List<Vector> open = new List<Vector>();
             List<Vector> closed = new List<Vector>();
@@ -39,11 +34,7 @@ namespace PathFindingAlgorithem
                 open.RemoveAt(0);
                 if (finish.Equals(visited.position))
                 {
-                    Console.WriteLine("Done");
                     visited.previous.Add(visited);
-                    /*foreach (Vector vs in visited.previous)
-                        Console.WriteLine(vs.position.x + " , " + vs.position.y + " : " + vs.direction.ToString());
-                    Console.WriteLine(visited.position.x + " , " + visited.position.y + " : " + visited.direction.ToString());*/
                     return visited.previous;
                 }
                 foreach (Vector v in GetNextMoves(visited))
@@ -55,7 +46,7 @@ namespace PathFindingAlgorithem
                 }
                 closed.Add(visited);
             }
-            return new HashSet<Vector>();
+            return new List<Vector>();
         }
 
         public List<Vector> GetNextMoves(Vector vector)
@@ -65,15 +56,13 @@ namespace PathFindingAlgorithem
             Vector right = vector.MoveRight(this);
             if (forward != null)
             {
-                foreach (Vector pre in vector.previous)
-                    forward.previous.Add(pre);
+                forward.previous.AddRange(vector.previous);
                 forward.previous.Add(vector);
                 moves.Add(forward);
             }
             if (right != null)
             {
-                foreach (Vector pre in vector.previous)
-                    right.previous.Add(pre);
+                right.previous.AddRange(vector.previous);
                 right.previous.Add(vector);
                 moves.Add(right);
             }
@@ -84,28 +73,13 @@ namespace PathFindingAlgorithem
 
         public static Maze GetMaze(string filename)
         {
-            string[][] x = ReadMaze(filename).Result;
+            String[][] x = readMaze(filename).Result;
             Maze maze = new Maze(x.GetLength(0), x[0].GetLength(0))
             {
                 Grid = x
             };
             return maze;
         }
-
-        /*public static Maze GetMaze(int Rows, int Columns)
-		{
-			Maze maze = new Maze(Rows, Columns);
-			maze.Grid = new int[Rows, Columns];
-			Random rand = new Random();
-			for (int row = 0; row < Rows; row++)
-			{
-				for (int column = 0; column < Columns; column++)
-				{
-					maze.Grid[row, column] = rand.Next(-1, 20) == -1 ? -1 : 0;
-				}
-			}
-			return maze;
-		}*/
 
         static async Task<string[][]> ReadMaze(string filename)
         {
@@ -120,6 +94,26 @@ namespace PathFindingAlgorithem
             string[][] Maze = list.Select(a => a.ToArray()).ToArray();
             reader.Close();
             return Maze;
+        }
+
+        public static async Task<String[][]> readMaze(String filename)
+        {
+            FileInfo fi = new FileInfo(filename);
+            int bytes = (int)fi.Length;
+            byte[] buf = new byte[bytes];
+
+            FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, bytes, true /*async*/ );
+
+            var T1 = Task<int>.Factory.FromAsync(fs.BeginRead, fs.EndRead, buf, 0, bytes, null);
+
+            Task<string[][]> T2 = T1.ContinueWith((antecedent) =>
+            {
+                fs.Close();
+                int bytesRead = antecedent.Result;
+                String result = System.Text.Encoding.UTF8.GetString(buf).Trim();
+                return result.Split("\n".ToCharArray()).Select(a => a.Trim().Split()).ToArray();
+            });
+            return await T2;
         }
         public Vector getStartAndDirection()
         {
