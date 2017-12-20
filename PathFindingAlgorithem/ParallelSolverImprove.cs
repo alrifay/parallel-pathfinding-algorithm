@@ -74,6 +74,7 @@ namespace PathFindingAlgorithem
                     }
                 }
             });
+            
             /*foreach (Task<HashSet<Vector>> task in tasks)
             {
                 HashSet<Vector> result = task.Result;
@@ -89,6 +90,11 @@ namespace PathFindingAlgorithem
         }
         public HashSet<Vector> GetPath(Vector start, Point finish)
         {
+            if (finish.Equals(start.position))
+            {
+                start.previous.Add(start);
+                return start.previous;
+            }
             List<Vector> CurrentOpenList = new List<Vector>();
             Vector visited;
             CurrentOpenList.AddRange(this.maze.GetNextMoves(start));

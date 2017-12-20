@@ -7,25 +7,25 @@ using System.Threading.Tasks;
 
 namespace PathFindingAlgorithem
 {
-    class ParallelSolver
+    public class ParallelSolver
     {
         public List<HashSet<Vector>> Soluations;
-        public Mutex Lock;
+        public object Lock;
         public List<Vector> Closed;
         public ParallelSolver()
         {
             Soluations = new List<HashSet<Vector>>();
-            Lock = new Mutex();
+            Lock = new object();
             Closed = new List<Vector>();
         }
         public void Solve(Maze maze, Vector start, Point end)
         {
-            Lock.WaitOne();
-            Closed.Add(start);
-            Lock.ReleaseMutex();
+            lock (Lock)
+            {
+                Closed.Add(start);
+            }
             if (start.position.Equals(end))
             {
-                Console.WriteLine("Done");
                 start.previous.Add(start);
                 Soluations.Add(start.previous);
             }
@@ -36,25 +36,27 @@ namespace PathFindingAlgorithem
                 {
                     if (discover.Count == 2)
                     {
-                        Lock.WaitOne();
-                        if (!discover[1].IsExistInListAndNotLessPath(Closed))
+                        lock (Lock)
                         {
-                            new Task(() => Solve(maze, discover[1], end), TaskCreationOptions.AttachedToParent).Start();
+                            if (!discover[1].IsExistInListAndNotLessPath(Closed))
+                            {
+                                new Task(() => Solve(maze, discover[1], end), TaskCreationOptions.AttachedToParent).Start();
+                            }
                         }
-                        Lock.ReleaseMutex();
                     }
-                    Lock.WaitOne();
-                    if (!discover[0].IsExistInListAndNotLessPath(Closed))
+                    lock (Lock)
                     {
-                        Solve(maze, discover[0], end);
+                        if (!discover[0].IsExistInListAndNotLessPath(Closed))
+                        {
+                            Solve(maze, discover[0], end);
+                        }
                     }
-                    Lock.ReleaseMutex();
                 }
             }
         }
         public HashSet<Vector> StartSolve(Maze maze, Vector start, Point end)
         {
-            Task s = new Task(()=>Solve(maze, start, end));
+            Task s = new Task(() => Solve(maze, start, end));
             s.Start();
             s.Wait();
             HashSet<Vector> Soluation = new HashSet<Vector>();
