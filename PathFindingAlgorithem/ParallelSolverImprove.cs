@@ -58,6 +58,8 @@ namespace PathFindingAlgorithem
                 tasks.Add(s);
             });
             Task.WaitAll(tasks.ToArray());
+            if (tasks.Count == 0)
+                return new List<Vector>();
             List<Vector> min = tasks[0].Result;
             tasks.RemoveAt(0);
             Parallel.ForEach(tasks, (task) =>
