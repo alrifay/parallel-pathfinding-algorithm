@@ -109,7 +109,7 @@ namespace PathFindingAlgorithem
             Task<string[][]> T2 = T1.ContinueWith((antecedent) =>
             {
                 fs.Close();
-                int bytesRead = antecedent.Result;
+                //int bytesRead = antecedent.Result;
                 String result = System.Text.Encoding.UTF8.GetString(buf).Trim();
                 return result.Split("\n".ToCharArray()).Select(a => a.Trim().Split()).ToArray();
             });

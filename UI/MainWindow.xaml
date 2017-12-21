@@ -30,7 +30,7 @@
 
     <Grid Margin="0" VerticalAlignment="Top">
         <ScrollViewer  VerticalScrollBarVisibility="Auto" 
-        HorizontalScrollBarVisibility="Auto"  Height="526" Margin="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+        HorizontalScrollBarVisibility="Auto"  Height="498" Margin="0" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
             <Grid x:Name="rectanglesGrid" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             </Grid>
 

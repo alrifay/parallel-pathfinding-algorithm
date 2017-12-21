@@ -20,7 +20,7 @@ namespace UI
         {
             base.OnStartup(e);
             mutex = new Mutex(false, "Team@M Maze");
-            if (!mutex.WaitOne(0, false))
+            if (!mutex.WaitOne(3,false))
             {
                 MessageBox.Show("App already running");
                 Environment.Exit(0);

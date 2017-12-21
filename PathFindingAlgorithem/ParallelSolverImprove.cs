@@ -33,7 +33,7 @@ namespace PathFindingAlgorithem
         {
             Vector visited;
             this.open.AddRange(this.maze.GetNextMoves(start));
-            while (this.open.Count < 4 && this.open.Count != 0)
+            while (this.open.Count < 2 && this.open.Count != 0)
             {
                 visited = open[0];
                 open.RemoveAt(0);
